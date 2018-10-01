@@ -1,6 +1,9 @@
 // main.cpp : entry point
 //
 
+#include <stddef.h>
+#include <stdint.h>
+#include <limits.h>
 #include "graph.h"
 #include "stream.h"
 

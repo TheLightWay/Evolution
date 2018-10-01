@@ -12,9 +12,9 @@ set( INCLIST "${CMAKE_CURRENT_LIST_DIR}/pnglite.h" )
 
 set( THIS_TARGET_SOURCES ${SRCLIST} ${INCLIST} )
 
-add_library( "pnglite" STATIC ${THIS_TARGET_SOURCES} )
-target_include_directories( "pnglite" PUBLIC "${CMAKE_CURRENT_LIST_DIR}"  )
-target_include_directories( "pnglite" PRIVATE ${ZLIB_INCLUDE_DIRS}  )
-target_link_libraries( "pnglite" PRIVATE ${ZLIB_LIBRARIES} )
+add_library( pnglite STATIC ${THIS_TARGET_SOURCES} )
+target_include_directories( pnglite PUBLIC "${CMAKE_CURRENT_LIST_DIR}"  )
+target_include_directories( pnglite PRIVATE ${ZLIB_INCLUDE_DIRS}  )
+target_link_libraries( pnglite PRIVATE ${ZLIB_LIBRARIES} )
 #message( STATUS "${ZLIB_LIBRARIES}")
 

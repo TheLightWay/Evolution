@@ -1,6 +1,7 @@
 // stream.cpp : serialization functions
 //
 
+#include <algorithm>
 #include "stream.h"
 
 

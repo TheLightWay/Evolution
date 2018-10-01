@@ -3,13 +3,13 @@
 
 #pragma once
 
-#include "math.h"
+
 #include <vector>
 #include <thread>
 #include <atomic>
 #include <condition_variable>
 #include <mutex>
-
+#include "evo_math.h"
 
 
 namespace Slot
@@ -136,12 +136,16 @@ struct Genome
 
         uint32_t take_bits(int n)
         {
-            uint32_t res = data >> (64 - n);  data <<= n;  return res;
+            uint32_t res = static_cast<uint32_t>(data >> (64 - n));  
+			data <<= n;  
+			return res;
         }
 
         int32_t take_bits_signed(int n)
         {
-            int32_t res = int64_t(data) >> (64 - n);  data <<= n;  return res;
+            int32_t res = static_cast<int32_t>(int64_t(data) >> (64 - n));  
+			data <<= n;  
+			return res;
         }
 
         bool operator < (const Gene &cmp) const

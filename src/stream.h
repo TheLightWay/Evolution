@@ -3,12 +3,11 @@
 
 #pragma once
 
-#include "hash.h"
 #include <cassert>
 #include <cstring>
 #include <cstdio>
 #include <vector>
-
+#include "hash.h"
 
 
 class StreamAlign

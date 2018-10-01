@@ -23,11 +23,16 @@ DisallowIntreeBuilds( )
 
 MakeOutputDirectories( )
 
+if( MSVC )
+	add_definitions( "-D_CRT_SECURE_NO_DEPRECATE" )
+	add_definitions( "-D_CRT_SECURE_NO_WARNINGS" )
+endif( )
+
 #find or build SDL2 library
 find_package( SDL2 QUIET )
-if( NOT SDL2_LIBRARY )
+if( NOT SDL2_FOUND )
     BuildExternalProjectFromGit( SDL-mirror "https://github.com/spurious/SDL-mirror.git" "release-2.0.8" )
-    set( SDL2_DIR "${INSTALL_THRIDPARTY_DIR}/SDL-mirror" )
+    set( SDL2_PATH "${INSTALL_THRIDPARTY_DIR}/SDL-mirror" )
     find_package( SDL2 REQUIRED )
 endif()
 
@@ -42,20 +47,21 @@ set( IMAGES_DIR "${CMAKE_CURRENT_LIST_DIR}/images" )
 file( GLOB SHADERS "${SHADERS_DIR}/*.vert" "${SHADERS_DIR}/*.frag" )
 file( GLOB IMAGES "${IMAGES_DIR}/*.png" )
 
-add_executable( "respack" "${SRCDIR}/respack.cpp" )
-add_dependencies( "respack" "pnglite" )
-target_include_directories( "respack" PRIVATE "${SRCDIR}/pnglite" )
-target_link_libraries( "respack" "pnglite" )
+add_executable( respack "${SRCDIR}/respack.cpp" )
+add_dependencies( respack pnglite )
+target_include_directories( respack PRIVATE "${SRCDIR}/pnglite" )
+target_link_libraries( respack pnglite )
 
 set( GENRESSRCDIR "${PROJECT_BINARY_DIR}/gensrc" )
 file( MAKE_DIRECTORY ${GENRESSRCDIR} )
 
-add_custom_command( TARGET "respack" 
-    POST_BUILD
-    COMMAND $<TARGET_FILE:respack> -d 
-    ${GENRESSRCDIR} -f resources -s ${SHADERS}
-    -i ${IMAGES} 
-    )
+add_custom_command( 
+	OUTPUT ${GENRESSRCDIR}/resources.cpp ${GENRESSRCDIR}/resources.h
+	COMMAND respack -d ${GENRESSRCDIR} -f resources -s ${SHADERS} -i ${IMAGES}
+	DEPENDS respack
+	VERBATIM
+)
+					
 
 set( EVO_SRC_LIST 
         ${SRCDIR}/main.cpp
@@ -67,21 +73,18 @@ set( EVO_SRC_LIST
         ${SRCDIR}/world.h
         ${SRCDIR}/stream.cpp
         ${SRCDIR}/stream.h
-        ${SRCDIR}/math.cpp
-        ${SRCDIR}/math.h
+        ${SRCDIR}/evo_math.cpp
+        ${SRCDIR}/evo_math.h
         ${SRCDIR}/video.h
         ${SRCDIR}/selection.cpp
         ${GENRESSRCDIR}/resources.h
         ${GENRESSRCDIR}/resources.cpp
 )
 
-message( STATUS "sdl2: ${SDL2_INCLUDE_DIRS}" )
 add_executable( "Evolution" ${EVO_SRC_LIST} )
-add_dependencies( "Evolution" "respack" )
 target_include_directories( "Evolution" 
-        PRIVATE ${SRCDIR} ${GENRESSRCDIR} ${SDL2_INCLUDE_DIRS} )
-target_link_libraries( "Evolution" PRIVATE ${SDL2_LIBRARIES} )
-
+        PRIVATE ${SRCDIR} ${GENRESSRCDIR} ${SDL2_INCLUDE_DIR} )
+target_link_libraries( "Evolution" PRIVATE ${SDL2_LIBRARY} )
 
 
 

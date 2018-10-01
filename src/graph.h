@@ -3,12 +3,12 @@
 
 #pragma once
 
-#include "world.h"
-#include "resources.h"
+
 //#include <GL/gl.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
-
+#include "world.h"
+#include "resources.h"
 
 
 void print_checksum(const World &world, const OutStream &stream);

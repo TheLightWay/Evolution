@@ -1,6 +1,7 @@
 // selection.cpp : selected creature related functions
 //
 
+#include <algorithm>
 #include "graph.h"
 #include "video.h"
 

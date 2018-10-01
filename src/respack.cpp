@@ -52,24 +52,6 @@ inline bool check_postfix(const char *str, size_t &len, const char *postfix, siz
 
 Type classify(const std::string &name )
 {
-    /*
-    !!!GOVNOCODE!!!
-    Type type;
-    size_t len = name.length();
-    if(check_postfix(name.c_str(), len, ".png", 4))
-        type = Type::image;
-    else if(check_postfix(name.c_str(), len, ".vert", 5))
-        type = Type::shader_vert;
-    else if(check_postfix(name.c_str(), len, ".frag", 5))
-        type = Type::shader_frag;
-    else 
-        return Type::invalid;
-
-    for(size_t i = 0; i < len; i++)
-    {
-        if((name[i] < 'a' || name[i] > 'z') && name[i] != '_')
-            return Type::invalid;
-    }*/
     static const std::string png_ext = ".png";
     static const std::string vert_ext = ".vert";
     static const std::string frag_ext = ".frag";
@@ -138,11 +120,17 @@ size_t write_error( const char* s = nullptr )
     return 0;
 }
 
-template<class T>
-T base_filename(T const & path, T const & delims = "/\\")
+std::string base_filename(std::string const & path, std::string const & delims = "/\\")
 {
   return path.substr(path.find_last_of(delims) + 1);
 }
+
+std::string filename_without_ext( std::string const & path )
+{
+    std::string ret = base_filename( path );
+    return ret.substr(0, ret.find_last_of('.') );
+}
+
 
 size_t load_shader(const char* type, std::string &name, FILE *output)
 {
@@ -160,7 +148,7 @@ size_t load_shader(const char* type, std::string &name, FILE *output)
         std::printf("Empty file \"%s\"!\n", name.c_str());  
         return 0;
     }
-    std::string short_name = base_filename( name ); 
+    std::string short_name = filename_without_ext( name ); 
     if(std::fprintf(output, "\nstatic const char *shader_%.*s_%s =\n    \"", short_name.length(), short_name.c_str(), type) < 0)
         return write_error();
 
@@ -210,7 +198,7 @@ bool load_image(std::string &name, FILE *output, size_t &width, size_t &height)
         std::printf("Cannot read PNG file \"%s\": %s\n", name.c_str(), png_error_string(err));
         return false;
     }
-    std::string short_name = base_filename( name );
+    std::string short_name = filename_without_ext( name );
     if(std::fprintf(output, "\nstatic const char *image_%.*s =\n    \"", int(short_name.length()), short_name.c_str()) < 0)
         return write_error();
 
@@ -228,12 +216,15 @@ bool load_image(std::string &name, FILE *output, size_t &width, size_t &height)
 bool process_files(const std::string &result, const std::string &include, size_t prefix, 
     std::vector<std::string> &args, std::vector<Image> &images, std::vector<Shader> &shaders )
 {
+    //printf( "On process_files\n");
     File output(result.c_str(), "wb");  
     
     if(!output)
         return cannot_open(result.c_str());
-    
-    if(std::fprintf(output, "// %s : resource data\n//\n\n#include \"%s\"\n\n",result.c_str() + prefix, include.c_str() + prefix) < 0)
+    std::string short_res = base_filename( result );
+    std::string short_inc = base_filename( include );
+    //printf( "result: %s\n", base_filename( result ).c_str() );
+    if(std::fprintf(output, "// %s : resource data\n//\n\n#include \"%s\"\n\n", short_res.c_str(), short_inc.c_str()) < 0)
         return write_error();
 
     for(size_t i = 0; i < args.size(); i++)
@@ -275,8 +266,10 @@ bool process_files(const std::string &result, const std::string &include, size_t
     if(std::fprintf(output, "\nconst ImageDesc images[] =\n{") < 0)return write_error();
     for(const auto &image : images)
     {
-        if(std::fprintf(output, "\n    {\"%s\", image_%s, %uu, %uu},", image.name.c_str(), image.name.c_str(),
-            unsigned(image.width), unsigned(image.height)) < 0)return write_error();
+        std::string istr = filename_without_ext( image.name );
+        if(std::fprintf(output, "\n    {\"%s\", image_%s, %uu, %uu},", istr.c_str(), istr.c_str(),
+            unsigned(image.width), unsigned(image.height)) < 0)
+            return write_error();
     }
     if(std::fprintf(output, "\n};\n") < 0)
         return write_error();
@@ -285,8 +278,10 @@ bool process_files(const std::string &result, const std::string &include, size_t
         return write_error();
     for(const auto &shader : shaders)
     {
-        if(std::fprintf(output, "\n    {\"%s\", shader_%s_%s, %uu},", shader.name.c_str(), shader.name.c_str(),
-            shader.type == Type::shader_vert ? "vert" : "frag", unsigned(shader.length)) < 0)return write_error();
+        std::string sstr = filename_without_ext( shader.name );
+        if(std::fprintf(output, "\n    {\"%s\", shader_%s_%s, %uu},", sstr.c_str(), sstr.c_str(),
+            shader.type == Type::shader_vert ? "vert" : "frag", unsigned(shader.length)) < 0)
+            return write_error();
     }
     if(std::fprintf(output, "\n};\n") < 0)return write_error();
         return true;
@@ -314,6 +309,7 @@ extern const ShaderDesc shaders[];
 bool write_desc( const std::string &result, size_t prefix,
     const std::vector<Image> &images, const std::vector<Shader> &shaders)
 {
+    //printf( "On write_desc\n");
     std::string short_name;
     File output(result.c_str(), "wb");  
     if(!output)
@@ -326,7 +322,7 @@ bool write_desc( const std::string &result, size_t prefix,
     
     for(const auto &image : images)
     {
-        short_name = base_filename(image.name);
+        short_name = filename_without_ext(image.name);
         if(std::fprintf(output, "\n        %s,",short_name.c_str() ) < 0 )
             return write_error( short_name.c_str() );
     }
@@ -340,7 +336,7 @@ bool write_desc( const std::string &result, size_t prefix,
     {
         if(shaders[i].type == Type::shader_vert)
         {
-            short_name = base_filename(shaders[i].name);
+            short_name = filename_without_ext(shaders[i].name);
             if(std::fprintf(output, "\n        %s = %u,", short_name.c_str(), unsigned(i)) < 0)
                 return write_error( short_name.c_str() );
         }
@@ -356,7 +352,7 @@ bool write_desc( const std::string &result, size_t prefix,
     {
         if(shaders[i].type == Type::shader_frag)
         {
-            short_name = base_filename(shaders[i].name);
+            short_name = filename_without_ext(shaders[i].name);
             if(std::fprintf(output, "\n        %s = %u,", short_name.c_str(), unsigned(i)) < 0)
                 return write_error( short_name.c_str() );
         }
@@ -383,7 +379,9 @@ int main(int n, char **args)
     cmd_line_parser.add_option( "-s, --shaderslist", shaders_list, "Shaders files list" );
     cmd_line_parser.add_option( "-i, --imageslist", images_list, "Images files list" );
 
+    //printf( "before parse cmdline: %i \n", n );
     CLI11_PARSE(cmd_line_parser, n, args);
+    //printf( "after parse cmdline\n");
 
     std::string result_h = result_dir + "/";
     result_h += result_basename;
