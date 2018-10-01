@@ -4,10 +4,10 @@
 #pragma once
 
 #include "world.h"
-#include "resource.h"
-#include <epoxy/gl.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
+#include "resources.h"
+//#include <GL/gl.h>
+#include <SDL.h>
+#include <SDL_opengl.h>
 
 
 
