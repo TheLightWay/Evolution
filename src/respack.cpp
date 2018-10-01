@@ -131,6 +131,15 @@ std::string filename_without_ext( std::string const & path )
     return ret.substr(0, ret.find_last_of('.') );
 }
 
+long fsize( FILE* stream )
+{
+	auto curr_pos = ftell ( stream );
+	fseek ( stream, 0, SEEK_END );
+	auto ret = ftell ( stream );
+	fseek ( stream, curr_pos, SEEK_SET );
+	return ret;
+}
+
 
 size_t load_shader(const char* type, std::string &name, FILE *output)
 {
@@ -149,24 +158,26 @@ size_t load_shader(const char* type, std::string &name, FILE *output)
         return 0;
     }
     std::string short_name = filename_without_ext( name ); 
-    if(std::fprintf(output, "\nstatic const char *shader_%.*s_%s =\n    \"", short_name.length(), short_name.c_str(), type) < 0)
+    if(std::fprintf(output, "\nstatic const char shader_%.*s_%s[%i] ={\n", 
+		(unsigned)short_name.length(), short_name.c_str(), type, fsize( input ) ) < 0 )
         return write_error();
 
     size_t size = 0;
     for(unsigned char buf[65536];;)
     {
         size_t n = std::fread(buf, 1, sizeof(buf), input);
-        if(std::ferror(input) || !n)return read_error();
+        if(std::ferror(input) || !n)
+			return read_error();
         size += n;
 
         if(std::feof(input))n--;
         for(size_t i = 0; i < n; i++)
-            if(std::fprintf(output, (i + 1) & 31 ? "\\x%02X" : "\\x%02X\"\n    \"", unsigned(buf[i])) < 0)
+            if(std::fprintf(output, (i + 1) & 31 ? "'\\x%02X\'," : "'\\x%02X\',\n", unsigned(buf[i])) < 0)
                 return write_error();
 
         if(n == sizeof(buf))
             continue;
-        if(std::fprintf(output, "\\x%02X\";\n", unsigned(buf[n])) < 0)
+        if(std::fprintf(output, "'\\x%02X\'\n }; \n\n", unsigned(buf[n])) < 0)
             return write_error();
         break;
     }
@@ -199,15 +210,16 @@ bool load_image(std::string &name, FILE *output, size_t &width, size_t &height)
         return false;
     }
     std::string short_name = filename_without_ext( name );
-    if(std::fprintf(output, "\nstatic const char *image_%.*s =\n    \"", int(short_name.length()), short_name.c_str()) < 0)
+    if(std::fprintf(output, "\nstatic const char image_%.*s[%i] ={\n", 
+		int(short_name.length()), short_name.c_str(), (unsigned)buf.size() ) < 0)
         return write_error();
 
     size_t n = buf.size() - 1;
     for(size_t i = 0; i < n; i++)
-        if(std::fprintf(output, (i + 1) & 31 ? "\\x%02X" : "\\x%02X\"\n    \"", unsigned(buf[i])) < 0)
+        if(std::fprintf(output, (i + 1) & 31 ? "'\\x%02X\'," : "'\\x%02X\',\n", unsigned(buf[i])) < 0)
             return write_error();
 
-    if(std::fprintf(output, "\\x%02X\";\n", unsigned(buf[n])) < 0)
+    if(std::fprintf(output, "'\\x%02X\'\n }; \n\n", unsigned(buf[n])) < 0)
         return write_error();
     return true;
 }
@@ -259,7 +271,7 @@ bool process_files(const std::string &result, const std::string &include, size_t
                 break;
             }
         default:
-            std::printf("Invalid resource name \"%s\"!\n", args[i]);  return false;
+            std::printf("Invalid resource name \"%s\"!\n", args[i].c_str());  return false;
         }
     }
 
