@@ -14,16 +14,16 @@ inline uint16_t bswap16(uint16_t val)
 
 inline uint32_t bswap32(uint32_t val)
 {
-    return (val >> 24 | val <<  8) & 0x00FF00FFul |
-           (val >>  8 | val << 24) & 0xFF00FF00ul;
+    return ( (val >> 24 | val <<  8) & 0x00FF00FFul ) |
+          ( (val >>  8 | val << 24) & 0xFF00FF00ul );
 }
 
 inline uint64_t bswap64(uint64_t val)
 {
-    return (val >> 56 | val <<  8) & 0x000000FF000000FFull |
-           (val >> 40 | val << 24) & 0x0000FF000000FF00ull |
-           (val >> 24 | val << 40) & 0x00FF000000FF0000ull |
-           (val >>  8 | val << 56) & 0xFF000000FF000000ull;
+    return ((val >> 56 | val <<  8) & 0x000000FF000000FFull) |
+           ((val >> 40 | val << 24) & 0x0000FF000000FF00ull) |
+           ((val >> 24 | val << 40) & 0x00FF000000FF0000ull) |
+           ((val >>  8 | val << 56) & 0xFF000000FF000000ull);
 }
 
 inline uint16_t to_le16(uint16_t val)

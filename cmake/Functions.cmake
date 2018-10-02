@@ -87,6 +87,14 @@ macro( MarkAsInternal _var )
 	set ( ${_var} ${${_var}} CACHE INTERNAL "hide this!" FORCE )
 endmacro( MarkAsInternal _var )
 
+macro( SetupCompilerWarnings _var )
+  if(MSVC)
+    target_compile_options( ${_var} PRIVATE /W4 /WX)
+  else()
+    target_compile_options( ${_var} PRIVATE -Wall -Wextra -pedantic -Werror)
+  endif()
+endmacro( SetupCompilerWarnings _var )
+
 set( CLONE_THRIDPARTY_DIR "${PROJECT_BINARY_DIR}/ThridPartyProjClone" CACHE PATH INTERNAL )
 set( INSTALL_THRIDPARTY_DIR "${PROJECT_BINARY_DIR}/ThridPartyProjInstall" CACHE PATH INTERNAL )
 

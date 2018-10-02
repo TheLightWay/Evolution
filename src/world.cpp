@@ -165,7 +165,8 @@ bool Food::load(const Config &config, InStream &stream, uint64_t offs_x, uint64_
     uint32_t x, y;  stream >> x >> y;  if(!stream)return false;
 
     type = Type(x >> tile_order);
-    pos.x = x & tile_mask | offs_x;  pos.y = y | offs_y;
+    pos.x = x & (tile_mask | offs_x);  
+    pos.y = y | offs_y;
     return type > dead && type <= meat && !(y >> tile_order);
 }
 
@@ -381,8 +382,15 @@ bool Genome::load(const Config &config, InStream &stream)
 void Genome::save(OutStream &stream) const
 {
     stream.assert_align(8);
-    for(auto &chromosome : chromosomes)stream << chromosome;  stream << align(8);
-    for(auto &gene : genes)stream << gene.data;
+    for(auto &chromosome : chromosomes)
+    {
+        stream << chromosome;  
+        stream << align(8);
+    }
+    for(auto &gene : genes)
+    {
+        stream << gene.data;
+    }
 }
 
 
@@ -473,7 +481,10 @@ void GenomeProcessor::State::process_gene(const Config &config, Genome::Gene &ge
     {
         uint32_t source = gene.take_bits(config.slot_bits);
         int32_t weight = gene.take_bits_signed(config.base_bits);
-        if(!weight)return;  act_level += weight * gene.take_bits(8);
+        if(!weight)
+            return;  
+        
+        act_level += weight * gene.take_bits(8);
 
         (weight < 0 ? min_level : max_level) += 255 * weight;
         links.emplace_back(weight, source);  link_count++;  return;
@@ -551,7 +562,11 @@ void GenomeProcessor::finalize()
     {
         if(slots[i].neiro_state)
         {
-            if(slots[i].neiro_state != s_input)queue.push_back(i);  continue;
+            if(slots[i].neiro_state != s_input)
+            {
+                queue.push_back(i);  
+                continue;
+            }
         }
         if(slots[i].max_level <= slots[i].act_level)
         {
@@ -626,7 +641,7 @@ void GenomeProcessor::finalize()
             slots[src].used = true;  working_links++;
         }
     }
-};
+}
 
 void GenomeProcessor::process(const Config &config, const Genome &genome)
 {
@@ -707,12 +722,14 @@ Creature::Eye::Eye(const Config &config, const GenomeProcessor::SlotData &slot) 
     rad_sqr(slot.radius * slot.radius * sqrt_scale), angle(slot.angle1), delta(slot.angle2 - slot.angle1 - 1),
     flags(slot.flags), count(0)
 {
+    (void)config;
     assert(slot.type == Slot::eye);
 }
 
 Creature::Radar::Radar(const Config &config, const GenomeProcessor::SlotData &slot) :
     angle(slot.angle1), delta(slot.angle2 - slot.angle1 - 1), flags(slot.flags), min_r2(max_r2)
 {
+    (void)config;
     assert(slot.type == Slot::radar);
 }
 
@@ -1053,7 +1070,9 @@ Creature *Creature::load(const Config &config, InStream &stream, uint64_t next_i
 
 bool Creature::load(InStream &stream, uint64_t load_energy, uint64_t *buf)
 {
-    if(load_energy > max_energy)return false;  energy = load_energy;
+    if(load_energy > max_energy)
+        return false;  
+    energy = load_energy;
 
     for(auto &hide : hides)
     {
@@ -1065,7 +1084,8 @@ bool Creature::load(InStream &stream, uint64_t load_energy, uint64_t *buf)
     for(uint32_t i = 0; i < n; i++)stream >> buf[i];
 
     uint32_t tail = order.size() & 63;
-    if(!stream || tail && (buf[n - 1] & uint64_t(-1) << tail))return false;
+    if( ( !stream || ( tail  && buf[n - 1] ) ) & ( uint64_t(-1) << tail ) )
+        return false;
 
     for(size_t i = 0; i < order.size(); i++)
     {
@@ -1091,7 +1111,10 @@ void Creature::save(OutStream &stream, uint64_t *buf) const
     stream << uint32_t(pos.x & tile_mask) << uint32_t(pos.y & tile_mask);
     stream << angle << align(8) << energy;
 
-    for(auto &hide : hides)stream << hide.life;  stream << align(8);
+    for(auto &hide : hides)
+        stream << hide.life;  
+    
+    stream << align(8);
 
     uint32_t n = (order.size() + 63) >> 6;
     for(uint32_t i = 0; i < n; i++)buf[i] = 0;
@@ -1230,7 +1253,11 @@ void TileGroup::spawn_meat(const Config &config, Tile &tile, Position pos, uint6
     {
         auto &buf = buffers[neighbor_index(config, tile, pos)];
         buf.foods.emplace_back(config, Food::meat, pos);  buf.food_count++;
-        if(energy < config.food_energy)return;  energy -= config.food_energy;
+        
+        if(energy < config.food_energy)
+            return;  
+        
+        energy -= config.food_energy;
 
         angle_t angle = tile.rand.uint32();
         pos.x += r_sin(config.meat_dist_x4, angle + angle_90);
@@ -1437,7 +1464,9 @@ bool TileGroup::Tile::hit_test(const Position pos, uint64_t max_r2, const Creatu
         uint64_t r2 = int64_t(dx) * dx + int64_t(dy) * dy;
         if(r2 >= max_r2)continue;
 
-        if(cr->id == prev_id && sel)return true;  sel = cr;
+        if(cr->id == prev_id && sel)
+            return true;  
+        sel = cr;
     }
     return false;
 }
@@ -1526,20 +1555,31 @@ void Context::start()
 void Context::pre_execute()
 {
     std::unique_lock<std::mutex> lock(mutex);
-    while(cmd)cond_cmd.wait(lock);  lock.release();
+    while(cmd)
+    {
+        cond_cmd.wait(lock);
+    }
+    lock.release();
 }
 
 void Context::post_execute(Command new_cmd)
 {
     std::unique_lock<std::mutex> lock(mutex, std::adopt_lock);
-    if((cmd = new_cmd))cond_work.notify_all();
+    if((cmd = new_cmd))
+        cond_work.notify_all();
 }
 
 void Context::execute(Command new_cmd)
 {
     std::unique_lock<std::mutex> lock(mutex);
-    while(cmd)cond_cmd.wait(lock);  cmd = new_cmd;
-    if(new_cmd)cond_work.notify_all();
+    while(cmd)
+    {
+        cond_cmd.wait(lock);
+    }  
+    
+    cmd = new_cmd;
+    if(new_cmd)
+        cond_work.notify_all();
 }
 
 

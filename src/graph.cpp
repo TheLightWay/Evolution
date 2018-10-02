@@ -1,11 +1,13 @@
 // graph.cpp : world rendering
 //
 
-#include "graph.h"
-#include "video.h"
-#include "stream.h"
 #include <algorithm>
 #include <cassert>
+#include "graph.h"
+#include "glext_loader.h"
+#include "video.h"
+#include "stream.h"
+
 
 
 
@@ -332,7 +334,9 @@ void Representation::make_sel_shape()
     GLubyte index[n + 3];  index[0] = 0;
     for(int i = 1, k = 1; i < n; i++)
     {
-        if(!(i % 6))index[k++] = GLubyte(-1);  index[k++] = i;
+        if(!(i % 6))
+            index[k++] = GLubyte(-1);  
+        index[k++] = i;
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, buf[vtx_sel]);
@@ -874,8 +878,10 @@ void Representation::draw()
     glUniform3f(i_size, Gui::gene_width, Gui::line_spacing, sel.slot);
     glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, count[vtx_quad], count[inst_gene_bg]);
 
-    glUseProgram(prog[prog_gui]);  glUniform1i(i_gui, 0);
-    glActiveTexture(GL_TEXTURE0);  glBindTexture(GL_TEXTURE_2D, tex_gui);
+    glUseProgram(prog[prog_gui]);  
+    glUniform1i(i_gui, 0);
+    glActiveTextureEXT(GL_TEXTURE0);  
+    glBindTexture(GL_TEXTURE_2D, tex_gui);
 
     glBindVertexArray(arr[pass_slot]);
     glUniform4f(i_transform[prog_gui], x_slot, y_slot, mul_x, -mul_y);
@@ -893,8 +899,10 @@ void Representation::draw()
 
     glDisable(GL_SCISSOR_TEST);
 
-    glUseProgram(prog[prog_panel]);  glUniform1i(i_panel, 0);
-    glActiveTexture(GL_TEXTURE0);  glBindTexture(GL_TEXTURE_2D, tex_panel);
+    glUseProgram(prog[prog_panel]);  
+    glUniform1i(i_panel, 0);
+    glActiveTextureEXT(GL_TEXTURE0);  
+    glBindTexture(GL_TEXTURE_2D, tex_panel);
 
     glBindVertexArray(arr[pass_panel]);
     glUniform4f(i_transform[prog_panel], x_slot, 1, mul_x, -mul_y);  glUniform1f(i_size, cam.height);
@@ -913,8 +921,10 @@ void Representation::draw()
         glDrawElements(GL_TRIANGLE_STRIP, count[idx_panel], GL_UNSIGNED_BYTE, scroll_offs);
     }
 
-    glUseProgram(prog[prog_gui]);  glUniform1i(i_gui, 0);
-    glActiveTexture(GL_TEXTURE0);  glBindTexture(GL_TEXTURE_2D, tex_gui);
+    glUseProgram(prog[prog_gui]);  
+    glUniform1i(i_gui, 0);
+    glActiveTextureEXT(GL_TEXTURE0); 
+    glBindTexture(GL_TEXTURE_2D, tex_gui);
 
     glBindVertexArray(arr[pass_header]);
     glUniform4f(i_transform[prog_gui], x_slot, 1, mul_x, -mul_y);

@@ -43,6 +43,9 @@ class OutStream
 protected:
     virtual void overflow(const char *data, size_t size, bool last)
     {
+        (void)data;
+        (void)size;
+        (void)last;
     }
 
 public:
@@ -180,8 +183,11 @@ public:
         static const char zero[Hash::block_size] = {};
 
         unsigned tail = unsigned(-pos) & align.mask;
-        if(tail > ready - pos || std::memcmp(buf.data() + pos, zero, tail))pos = ready = 0;
-        else pos += tail;  return *this;
+        if(tail > ready - pos || std::memcmp(buf.data() + pos, zero, tail))
+            pos = ready = 0;
+        else 
+            pos += tail;  
+        return *this;
     }
 
 
@@ -229,7 +235,9 @@ public:
 
     template<typename T> InStream &operator >> (T &obj)
     {
-        if(!obj.load(*this))pos = ready = 0;  return *this;
+        if(!obj.load(*this))
+            pos = ready = 0;  
+        return *this;
     }
 
 

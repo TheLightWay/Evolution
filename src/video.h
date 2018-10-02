@@ -181,6 +181,7 @@ struct SectorData
 
     void set(const Config &config, const Creature &cr, const Creature::Claw &claw)
     {
+        (void)config;
         x = cr.pos.x * draw_scale;
         y = cr.pos.y * draw_scale;
         rad = sqrt(claw.rad_sqr) * draw_scale;

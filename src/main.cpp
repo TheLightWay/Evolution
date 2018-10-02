@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <limits.h>
+#include "glext_loader.h"
 #include "graph.h"
 #include "stream.h"
 
@@ -176,16 +177,22 @@ int init(char **args, int n)
         return sdl_error("Failed to use debug context: ");
 #endif
 
-    if(SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1))return sdl_error("Failed to enable double-buffering: ");
-    if(SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 1))return sdl_error("Failed to enable sRGB framebuffer: ");
-    if(SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1) || SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4))
-        return sdl_error("Failed to enable multisampling: ");
+    if(SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1))
+        return sdl_error("Failed to enable double-buffering: ");
+	//sRGB and multisample not work on some cards
+     if(SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 1))
+		 return sdl_error("Failed to enable sRGB framebuffer: ");
+	 /*if(SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1) || SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4))
+		 return sdl_error("Failed to enable multisampling: ");*/
 
-    const int width = 1280, height = 720;
+
+    const int width = 800, height = 600;
     SDL_Window *window = SDL_CreateWindow("Evolution",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height,
         SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-    if(!window)return sdl_error("Cannot create window: ");
+    
+    if(!window)
+        return sdl_error("Cannot create window: ");
 
     const ImageDesc &icon = images[Image::icon];
     SDL_Surface *icon_surf = SDL_CreateRGBSurfaceFrom(const_cast<char *>(icon.pixels),
@@ -194,7 +201,11 @@ int init(char **args, int n)
     SDL_FreeSurface(icon_surf);
 
     SDL_GLContext context = SDL_GL_CreateContext(window);
-    if(*SDL_GetError())return sdl_error("Cannot create OpenGL context: ");
+    if( nullptr == context )
+        return sdl_error("Cannot create OpenGL context: ");
+
+    if( !init_ogl_exts( ) )
+        return sdl_error( "Can't load OpenGL extensions" );
 
     bool res = main_loop(window, args, n);
     SDL_GL_DeleteContext(context);

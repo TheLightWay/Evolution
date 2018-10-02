@@ -106,22 +106,30 @@ bool OutFileStream::error()
 bool OutFileStream::open(const char *path)
 {
     assert(!file);
-    file = std::fopen(path, "wb");  if(!file)return false;
-    if(std::setvbuf(file, nullptr, _IONBF, 0))return error();
-    initialize();  return true;
+    file = std::fopen(path, "wb");  
+    if(!file)
+        return false;
+    if(std::setvbuf(file, nullptr, _IONBF, 0))
+        return error();
+    initialize();  
+    return true;
 }
 
 void OutFileStream::overflow(const char *data, size_t size, bool last)
 {
-    if(!file)return;
-    if(std::fwrite(data, 1, size, file) != size || last &&
-        std::fwrite(checksum(), 1, Hash::result_size, file) != Hash::result_size)
-            error();
+    if(!file)
+        return;
+    auto r1 = ( std::fwrite(data, 1, size, file) != size );
+    auto r2 = (std::fwrite(checksum(), 1, Hash::result_size, file) != Hash::result_size );
+    if( r1 || (last && r2) )
+        error();
 }
 
 bool OutFileStream::close()
 {
-    if(!file)return false;  finalize();
+    if(!file)
+        return false;  
+    finalize();
     bool res = file && !std::fclose(file);
     file = nullptr;  return res;
 }

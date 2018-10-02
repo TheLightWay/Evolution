@@ -88,7 +88,9 @@ angle_t calc_angle(int32_t dx, int32_t dy)
 
     uint64_t xs = uint64_t(x) * cos_table[angle_90 - res];
     uint64_t yc = uint64_t(y) * cos_table[res];
-    if(xs > yc)res--;  res ^= mask;
+    if(xs > yc)
+        res--;  
+    res ^= mask;
     return xs == yc ? res + (mask & 1) : res;
 }
 
@@ -297,14 +299,20 @@ uint32_t Random::geometric(uint32_t prob)
     {
         pow[ord] = prob;
         uint32_t next = mul_high(prob, prob);
-        if(val >= next)break;  prob = next;  ord++;
+        if(val >= next)
+            break;  
+        prob = next;  
+        ord++;
     }
 
     uint32_t res = 1;
     while(ord)
     {
         uint32_t next = mul_high(prob, pow[--ord]);  res *= 2;
-        if(val >= next)continue;  prob = next;  res++;
+        if(val >= next)
+            continue;  
+        prob = next;  
+        res++;
     }
     return res;
 }
@@ -324,7 +332,10 @@ void random_test()
     for(uint64_t i = 0; i < n; i++)
     {
         uint32_t val = rand.poisson(exp_prob);
-        if(val < m)freq[val]++;  mean += val;  disp += val * val;
+        if(val < m)
+            freq[val]++;  
+        mean += val;  
+        disp += val * val;
     }
 
     constexpr double scale = 1.0 / n;  mean *= scale;  disp *= scale;

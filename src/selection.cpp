@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "graph.h"
 #include "video.h"
+#include "glext_loader.h"
 
 
 
@@ -112,7 +113,9 @@ struct LinkPainter
 
     void process(uint32_t src, int32_t weight)
     {
-        if(!weight)return;  int y = src * Gui::line_spacing;
+        if(!weight)
+            return;  
+        int y = src * Gui::line_spacing;
         put_weight(buf, x - Gui::item_width - Gui::icon_width, y + Gui::margin, weight);
         if(y < y_dst)
         {

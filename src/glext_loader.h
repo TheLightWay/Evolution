@@ -1,0 +1,81 @@
+#pragma once
+
+#include <SDL.h>
+#include <SDL_opengl.h>
+#include <SDL_opengl_glext.h>
+
+extern PFNGLACTIVETEXTUREPROC glActiveTextureEXT;
+extern PFNGLBINDBUFFERPROC  glBindBuffer;
+extern PFNGLDELETEBUFFERSPROC glDeleteBuffers;
+extern PFNGLGENBUFFERSPROC glGenBuffers;
+extern PFNGLISBUFFERPROC glIsBuffer;
+extern PFNGLBUFFERDATAPROC glBufferData;
+extern PFNGLBUFFERSUBDATAPROC glBufferSubData;
+extern PFNGLGETBUFFERSUBDATAPROC glGetBufferSubData;
+extern PFNGLMAPBUFFERPROC glMapBuffer;
+extern PFNGLUNMAPBUFFERPROC glUnmapBuffer;
+extern PFNGLGETBUFFERPARAMETERIVPROC glGetBufferParameteriv;
+extern PFNGLGETBUFFERPOINTERVPROC glGetBufferPointerv;
+
+extern PFNGLATTACHSHADERPROC glAttachShader;
+extern PFNGLBINDATTRIBLOCATIONPROC glBindAttribLocation;
+extern PFNGLCOMPILESHADERPROC glCompileShader;
+extern PFNGLCREATEPROGRAMPROC glCreateProgram;
+extern PFNGLCREATESHADERPROC glCreateShader;
+extern PFNGLDELETEPROGRAMPROC glDeleteProgram;
+extern PFNGLDELETESHADERPROC glDeleteShader;
+extern PFNGLDETACHSHADERPROC glDetachShader;
+extern PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray;
+extern PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
+extern PFNGLGETACTIVEATTRIBPROC glGetActiveAttrib;
+extern PFNGLGETACTIVEUNIFORMPROC glGetActiveUniform;
+extern PFNGLGETATTACHEDSHADERSPROC glGetAttachedShaders;
+extern PFNGLGETATTRIBLOCATIONPROC glGetAttribLocation;
+extern PFNGLGETPROGRAMIVPROC glGetProgramiv;
+extern PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog;
+extern PFNGLGETSHADERIVPROC glGetShaderiv;
+extern PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
+extern PFNGLGETSHADERSOURCEPROC glGetShaderSource;
+extern PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
+extern PFNGLGETUNIFORMFVPROC glGetUniformfv;
+extern PFNGLGETUNIFORMIVPROC glGetUniformiv;
+extern PFNGLGETVERTEXATTRIBDVPROC glGetVertexAttribdv;
+extern PFNGLGETVERTEXATTRIBFVPROC glGetVertexAttribfv;
+extern PFNGLGETVERTEXATTRIBIVPROC glGetVertexAttribiv;
+extern PFNGLGETVERTEXATTRIBPOINTERVPROC glGetVertexAttribPointerv;
+extern PFNGLISPROGRAMPROC glIsProgram;
+extern PFNGLISSHADERPROC glIsShader;
+extern PFNGLLINKPROGRAMPROC glLinkProgram;
+extern PFNGLSHADERSOURCEPROC glShaderSource;
+extern PFNGLUSEPROGRAMPROC glUseProgram;
+
+extern PFNGLVERTEXATTRIBIPOINTERPROC glVertexAttribIPointer;
+extern PFNGLGETVERTEXATTRIBIIVPROC glGetVertexAttribIiv;
+extern PFNGLGETVERTEXATTRIBIUIVPROC glGetVertexAttribIuiv;
+extern PFNGLVERTEXATTRIBPOINTERARBPROC glVertexAttribPointer;
+extern PFNGLVERTEXATTRIBDIVISORPROC glVertexAttribDivisor;
+
+extern PFNGLBINDVERTEXARRAYPROC glBindVertexArray;
+extern PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays;
+extern PFNGLGENVERTEXARRAYSPROC glGenVertexArrays;
+extern PFNGLISVERTEXARRAYPROC glIsVertexArray;
+
+extern PFNGLPRIMITIVERESTARTINDEXPROC glPrimitiveRestartIndex;
+
+extern PFNGLUNIFORM1FPROC glUniform1f;
+extern PFNGLUNIFORM2FPROC glUniform2f;
+extern PFNGLUNIFORM3FPROC glUniform3f;
+extern PFNGLUNIFORM4FPROC glUniform4f;
+extern PFNGLUNIFORM1IPROC glUniform1i;
+extern PFNGLUNIFORM2IPROC glUniform2i;
+extern PFNGLUNIFORM3IPROC glUniform3i;
+extern PFNGLUNIFORM4IPROC glUniform4i;
+
+extern PFNGLDRAWARRAYSINSTANCEDPROC glDrawArraysInstanced;
+extern PFNGLDRAWELEMENTSINSTANCEDPROC glDrawElementsInstanced;
+
+
+
+bool init_ogl_exts( );
+
+

@@ -159,7 +159,7 @@ size_t load_shader(const char* type, std::string &name, FILE *output)
     }
     std::string short_name = filename_without_ext( name ); 
     if(std::fprintf(output, "\nstatic const char shader_%.*s_%s[%i] ={\n", 
-		(unsigned)short_name.length(), short_name.c_str(), type, fsize( input ) ) < 0 )
+		(unsigned)short_name.length(), short_name.c_str(), type, (unsigned)fsize( input ) ) < 0 )
         return write_error();
 
     size_t size = 0;
@@ -225,7 +225,7 @@ bool load_image(std::string &name, FILE *output, size_t &width, size_t &height)
 }
 
 
-bool process_files(const std::string &result, const std::string &include, size_t prefix, 
+bool process_files(const std::string &result, const std::string &include, 
     std::vector<std::string> &args, std::vector<Image> &images, std::vector<Shader> &shaders )
 {
     //printf( "On process_files\n");
@@ -318,7 +318,7 @@ extern const ImageDesc images[];
 extern const ShaderDesc shaders[];
 )";
 
-bool write_desc( const std::string &result, size_t prefix,
+bool write_desc( const std::string &result,
     const std::vector<Image> &images, const std::vector<Shader> &shaders)
 {
     //printf( "On write_desc\n");
@@ -326,7 +326,7 @@ bool write_desc( const std::string &result, size_t prefix,
     File output(result.c_str(), "wb");  
     if(!output)
         return cannot_open(result.c_str());
-    if(std::fprintf(output, "// %s : resource description\n//\n\n", result.c_str() + prefix) < 0)
+    if(std::fprintf(output, "// %s : resource description\n//\n\n", result.c_str()) < 0)
         return write_error( "resource description");
 
     if(std::fprintf(output, "\nnamespace Image\n{\n    enum Index\n    {") < 0)
@@ -411,12 +411,12 @@ int main(int n, char **args)
         std::make_move_iterator(images_list.begin()),
         std::make_move_iterator(images_list.end()));
 
-    const size_t prefix = 6;
+    //const size_t prefix = 6;
     std::vector<Image> images;  
     std::vector<Shader> shaders;  
     png_init(0, 0);
     
-    if(!process_files(result_cpp, result_h, prefix, files_list, images, shaders))
+    if(!process_files(result_cpp, result_h, files_list, images, shaders))
         return EXIT_FAILURE;
-    return write_desc(result_h, prefix, images, shaders) ? EXIT_SUCCESS : EXIT_FAILURE;
+    return write_desc(result_h, images, shaders) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

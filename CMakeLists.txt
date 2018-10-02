@@ -23,10 +23,11 @@ DisallowIntreeBuilds( )
 
 MakeOutputDirectories( )
 
-if( MSVC )
-	add_definitions( "-D_CRT_SECURE_NO_DEPRECATE" )
-	add_definitions( "-D_CRT_SECURE_NO_WARNINGS" )
-endif( )
+
+add_compile_definitions(  $<$<CXX_COMPILER_ID:MSVC>:_CRT_SECURE_NO_DEPRECATE> )
+add_compile_definitions(  $<$<CXX_COMPILER_ID:MSVC>:_CRT_SECURE_NO_WARNINGS> )
+add_compile_definitions(  $<$<CONFIG:DEBUG>:DEBUG> )
+
 
 #find or build SDL2 library
 find_package( SDL2 QUIET )
@@ -51,6 +52,7 @@ add_executable( respack "${SRCDIR}/respack.cpp" )
 add_dependencies( respack pnglite )
 target_include_directories( respack PRIVATE "${SRCDIR}/pnglite" )
 target_link_libraries( respack pnglite )
+SetupCompilerWarnings( respack )
 
 set( GENRESSRCDIR "${PROJECT_BINARY_DIR}/gensrc" )
 file( MAKE_DIRECTORY ${GENRESSRCDIR} )
@@ -62,11 +64,14 @@ add_custom_command(
 	VERBATIM
 )
 					
+find_package(OpenGL REQUIRED )
 
 set( EVO_SRC_LIST 
         ${SRCDIR}/main.cpp
         ${SRCDIR}/graph.cpp
         ${SRCDIR}/graph.h
+        ${SRCDIR}/glext_loader.cpp
+        ${SRCDIR}/glext_loader.h
         ${SRCDIR}/hash.cpp
         ${SRCDIR}/hash.h
         ${SRCDIR}/world.cpp
@@ -81,11 +86,11 @@ set( EVO_SRC_LIST
         ${GENRESSRCDIR}/resources.cpp
 )
 
-add_executable( "Evolution" ${EVO_SRC_LIST} )
-target_include_directories( "Evolution" 
-        PRIVATE ${SRCDIR} ${GENRESSRCDIR} ${SDL2_INCLUDE_DIR} )
-target_link_libraries( "Evolution" PRIVATE ${SDL2_LIBRARY} )
-
+add_executable( Evolution ${EVO_SRC_LIST} )
+target_include_directories( Evolution 
+        PRIVATE ${SRCDIR} ${GENRESSRCDIR} ${SDL2_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR} )
+target_link_libraries( Evolution PRIVATE ${SDL2_LIBRARY} ${OPENGL_LIBRARIES} )
+SetupCompilerWarnings( Evolution )
 
 
 
