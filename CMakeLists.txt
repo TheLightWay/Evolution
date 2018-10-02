@@ -11,6 +11,7 @@ set( CMAKE_CXX_STANDARD_REQUIRED ON )
 
 
 set( TOP_LEVEL_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}" )
+set( ASSETS_DIR "${TOP_LEVEL_SOURCE_DIR}/assets")
 
 list( APPEND CMAKE_MODULE_PATH "${TOP_LEVEL_SOURCE_DIR}/cmake" )
 list( APPEND CMAKE_MODULE_PATH "${TOP_LEVEL_SOURCE_DIR}/cmake/modules" )
@@ -32,27 +33,22 @@ add_compile_definitions(  $<$<CONFIG:DEBUG>:DEBUG> )
 #find or build SDL2 library
 find_package( SDL2 QUIET )
 if( NOT SDL2_FOUND )
-    BuildExternalProjectFromGit( SDL-mirror "https://github.com/spurious/SDL-mirror.git" "release-2.0.8" )
-    set( SDL2_PATH "${INSTALL_THRIDPARTY_DIR}/SDL-mirror" )
+    BuildExternalProjectFromGit( SDL2 "https://github.com/davidsiaw/SDL2.git" "master" )
+    set( SDL2_PATH "${INSTALL_THRIDPARTY_DIR}/SDL2" )
     find_package( SDL2 REQUIRED )
 endif()
 
-#build pnglite static library
-add_subdirectory( pnglite )
+#build 3rdparty static libraries
+add_subdirectory( 3rdparty )
 
 #build respack utility
+add_subdirectory( respack )
 
-set( SHADERS_DIR "${CMAKE_CURRENT_LIST_DIR}/shaders" )
-set( IMAGES_DIR "${CMAKE_CURRENT_LIST_DIR}/images" )
+set( SHADERS_DIR "${ASSETS_DIR}/shaders" )
+set( IMAGES_DIR "${ASSETS_DIR}/images" )
 
 file( GLOB SHADERS "${SHADERS_DIR}/*.vert" "${SHADERS_DIR}/*.frag" )
 file( GLOB IMAGES "${IMAGES_DIR}/*.png" )
-
-add_executable( respack "${SRCDIR}/respack.cpp" )
-add_dependencies( respack pnglite )
-target_include_directories( respack PRIVATE "${SRCDIR}/pnglite" )
-target_link_libraries( respack pnglite )
-SetupCompilerWarnings( respack )
 
 set( GENRESSRCDIR "${PROJECT_BINARY_DIR}/gensrc" )
 file( MAKE_DIRECTORY ${GENRESSRCDIR} )

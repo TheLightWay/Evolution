@@ -69,8 +69,10 @@ bool main_loop(SDL_Window *window, char **args, int n)
     glEnable(GL_CULL_FACE);
 
     World world(8);
-    if(n <= 1)world.init();
-    else if(!load_restart(world, args[1]))return false;
+    if(n <= 1)
+        world.init();
+    else if(!load_restart(world, args[1]))
+        return false;
     Representation graph(world, window);
 
     world.start();

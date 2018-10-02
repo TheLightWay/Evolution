@@ -17,33 +17,54 @@ bool Config::calc_derived()
     constexpr uint64_t max_cost = 1ull << 48;
     constexpr uint32_t max_value = 1ul << 24;
 
-    if(!order_x || order_x >= 16)return false;
-    if(!order_y || order_y >= 16)return false;
-    if(base_radius > tile_size)return false;
+    if(!order_x || order_x >= 16)
+        return false;
+    if(!order_y || order_y >= 16)
+        return false;
+    if(base_radius > tile_size)
+        return false;
 
-    if(!chromosome_bits || chromosome_bits > 16)return false;
-    if(slot_bits > 8 || base_bits > 16)return false;
-    if(genome_split_factor > 0xFFFFFF00)return false;  // TODO: handle overflows
-    if(chromosome_replace_factor > 0xFFFFFF00)return false;
-    if(bit_mutate_factor > 0xFFFFFF00)return false;
+    if(!chromosome_bits || chromosome_bits > 16)
+        return false;
+    if(slot_bits > 8 || base_bits > 16)
+        return false;
+    if(genome_split_factor > 0xFFFFFF00)// TODO: handle overflows
+        return false;  
+    if(chromosome_replace_factor > 0xFFFFFF00)
+        return false;
+    if(bit_mutate_factor > 0xFFFFFF00)
+        return false;
 
-    if(!base_cost.initial || !base_cost.per_tick)return false;
-    if(base_cost.initial > max_cost || base_cost.per_tick > max_cost)return false;
-    if(gene_cost.initial > max_cost || gene_cost.per_tick > max_cost)return false;
-    for(const auto &c : cost)if(c.initial > max_cost || c.per_tick > max_cost)return false;
-    if(eating_cost > max_cost || signal_cost > max_cost)return false;
+    if(!base_cost.initial || !base_cost.per_tick)
+        return false;
+    if(base_cost.initial > max_cost || base_cost.per_tick > max_cost)
+        return false;
+    if(gene_cost.initial > max_cost || gene_cost.per_tick > max_cost)
+        return false;
+    for(const auto &c : cost)if(c.initial > max_cost || c.per_tick > max_cost)
+        return false;
+    if(eating_cost > max_cost || signal_cost > max_cost)
+        return false;
 
     uint64_t limit_cost = max_cost >> base_bits;
     uint32_t limit_value = max_value >> base_bits;
-    if(spawn_mul > limit_cost || capacity_mul > limit_cost || hide_mul > limit_cost)return false;
-    if(damage_mul > limit_value || life_mul > limit_value || life_regen > 65536)return false;
-    if(speed_mul > (uint32_t(-1) >> base_bits))return false;
-    if(rotate_mul > (uint32_t(-1) >> 7))return false;
-    if(mass_order >= 64)return false;
+    if(spawn_mul > limit_cost || capacity_mul > limit_cost || hide_mul > limit_cost)
+        return false;
+    if(damage_mul > limit_value || life_mul > limit_value || life_regen > 65536)
+        return false;
+    if(speed_mul > (uint32_t(-1) >> base_bits))
+        return false;
+    if(rotate_mul > (uint32_t(-1) >> 7))
+        return false;
+    if(mass_order >= 64)
+        return false;
 
-    if(food_energy > max_cost)return false;
-    if(repression_range > tile_size)return false;
-    if(sprout_dist_x4 <= 4 * repression_range)return false;
+    if(food_energy > max_cost)
+        return false;
+    if(repression_range > tile_size)
+        return false;
+    if(sprout_dist_x4 <= 4 * repression_range)
+        return false;
 
     mask_x = (uint32_t(1) << order_x) - 1;
     mask_y = (uint32_t(1) << order_y) - 1;
@@ -55,6 +76,7 @@ bool Config::calc_derived()
     shift_base = 23 - base_bits;
     shift_cap = shift_base - ilog2(capacity_mul) + 40;
     shift_life = shift_base - ilog2(life_mul) + 8;
+    
     return true;
 }
 
