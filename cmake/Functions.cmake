@@ -109,7 +109,7 @@ function( BuildExternalProjectFromGit target url tag ) #FOLLOWING ARGUMENTS are 
 	
 	file( MAKE_DIRECTORY ${CLONE_THRIDPARTY_DIR}/${target}/build )
 
-  execute_process(COMMAND ${CMAKE_COMMAND}  -G ${CMAKE_GENERATOR} ${opts} -DCMAKE_INSTALL_PREFIX=${INSTALL_THRIDPARTY_DIR}/${target} ..
+  execute_process(COMMAND ${CMAKE_COMMAND}  -G ${CMAKE_GENERATOR} -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${INSTALL_THRIDPARTY_DIR}/${target} ..
       WORKING_DIRECTORY ${CLONE_THRIDPARTY_DIR}/${target}/build
       )
   execute_process(COMMAND ${CMAKE_COMMAND} --build . --target install --config Release
@@ -132,7 +132,7 @@ function( BuildExternalProjectFromZip target zip_file_path ) #FOLLOWING ARGUMENT
 	
 	file( MAKE_DIRECTORY ${CLONE_THRIDPARTY_DIR}/${target}/build )
 
-  execute_process(COMMAND ${CMAKE_COMMAND}  -G ${CMAKE_GENERATOR} ${opts} -DCMAKE_INSTALL_PREFIX=${INSTALL_THRIDPARTY_DIR}/${target} ..
+  execute_process(COMMAND ${CMAKE_COMMAND}  -G ${CMAKE_GENERATOR} -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${INSTALL_THRIDPARTY_DIR}/${target} ..
       WORKING_DIRECTORY ${CLONE_THRIDPARTY_DIR}/${target}/build
       )
   execute_process(COMMAND ${CMAKE_COMMAND} --build . --target install --config Release

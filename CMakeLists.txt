@@ -34,7 +34,7 @@ add_compile_definitions(  $<$<CONFIG:DEBUG>:DEBUG> )
 find_package( SDL2 QUIET )
 if( NOT SDL2_FOUND )
     BuildExternalProjectFromZip( SDL2 "${CMAKE_CURRENT_LIST_DIR}/distrs/SDL2.zip" )
-    set( SDL2_PATH "${INSTALL_THRIDPARTY_DIR}/SDL2" )
+    set( SDL2_ROOT_DIR "${INSTALL_THRIDPARTY_DIR}/SDL2" )
     find_package( SDL2 REQUIRED )
 endif()
 
@@ -76,6 +76,8 @@ set( EVO_SRC_LIST
         ${SRCDIR}/stream.h
         ${SRCDIR}/evo_math.cpp
         ${SRCDIR}/evo_math.h
+        ${SRCDIR}/cfgfile.cpp
+        ${SRCDIR}/cfgfile.h
         ${SRCDIR}/video.h
         ${SRCDIR}/selection.cpp
         ${GENRESSRCDIR}/resources.h
