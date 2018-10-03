@@ -33,7 +33,7 @@ add_compile_definitions(  $<$<CONFIG:DEBUG>:DEBUG> )
 #find or build SDL2 library
 find_package( SDL2 QUIET )
 if( NOT SDL2_FOUND )
-    BuildExternalProjectFromGit( SDL2 "https://github.com/davidsiaw/SDL2.git" "master" )
+    BuildExternalProjectFromZip( SDL2 "${CMAKE_CURRENT_LIST_DIR}/distrs/SDL2.zip" )
     set( SDL2_PATH "${INSTALL_THRIDPARTY_DIR}/SDL2" )
     find_package( SDL2 REQUIRED )
 endif()

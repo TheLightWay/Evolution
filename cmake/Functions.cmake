@@ -101,10 +101,34 @@ set( INSTALL_THRIDPARTY_DIR "${PROJECT_BINARY_DIR}/ThridPartyProjInstall" CACHE 
 file( MAKE_DIRECTORY ${CLONE_THRIDPARTY_DIR} )
 file( MAKE_DIRECTORY ${INSTALL_THRIDPARTY_DIR} )
 
+
 function( BuildExternalProjectFromGit target url tag ) #FOLLOWING ARGUMENTS are the CMAKE_ARGS of ExternalProject_Add
 	
 	execute_process( COMMAND git clone ${url} WORKING_DIRECTORY ${CLONE_THRIDPARTY_DIR} )
 	execute_process( COMMAND git checkout ${tag} WORKING_DIRECTORY ${CLONE_THRIDPARTY_DIR}/${target} )
+	
+	file( MAKE_DIRECTORY ${CLONE_THRIDPARTY_DIR}/${target}/build )
+
+  execute_process(COMMAND ${CMAKE_COMMAND}  -G ${CMAKE_GENERATOR} ${opts} -DCMAKE_INSTALL_PREFIX=${INSTALL_THRIDPARTY_DIR}/${target} ..
+      WORKING_DIRECTORY ${CLONE_THRIDPARTY_DIR}/${target}/build
+      )
+  execute_process(COMMAND ${CMAKE_COMMAND} --build . --target install --config Release
+      WORKING_DIRECTORY ${CLONE_THRIDPARTY_DIR}/${target}/build
+      )
+  file( GLOB BINFILES ${INSTALL_THRIDPARTY_DIR}/${target}/bin/* )
+  #message( STATUS "binfiles: ${BINFILES}")
+  file( COPY ${BINFILES} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG} )
+  file( COPY ${BINFILES} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE} )
+  file( COPY ${BINFILES} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL} )
+  file( COPY ${BINFILES} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO} )
+endfunction()
+
+function( BuildExternalProjectFromZip target zip_file_path ) #FOLLOWING ARGUMENTS are the CMAKE_ARGS of ExternalProject_Add
+	
+  execute_process(
+  COMMAND ${CMAKE_COMMAND} -E tar xzf ${zip_file_path}
+  WORKING_DIRECTORY ${CLONE_THRIDPARTY_DIR}
+  )
 	
 	file( MAKE_DIRECTORY ${CLONE_THRIDPARTY_DIR}/${target}/build )
 
