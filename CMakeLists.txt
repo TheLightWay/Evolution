@@ -39,7 +39,7 @@ if( NOT SDL2_FOUND )
 endif()
 
 #build 3rdparty static libraries
-add_subdirectory( 3rdparty )
+#add_subdirectory( 3rdparty )
 
 #build respack utility
 add_subdirectory( respack )
